@@ -30,16 +30,14 @@ class Planet(db.Model, SerializerMixin):
         "Mission", back_populates="planet", cascade="all, delete-orphan"
     )
     scientists = association_proxy("missions", "scientist")
-    
     # Add serialization rules
-    serialize_rules = ("-missions.planet", "-scientists.planets")
-
+    serialize_rules = ("-missions.planet",)
 
 class Scientist(db.Model, SerializerMixin):
     __tablename__ = "scientists"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, nullable=False)
     field_of_study = db.Column(db.String)
 
     # Add relationship
@@ -49,22 +47,15 @@ class Scientist(db.Model, SerializerMixin):
     planets = association_proxy("missions", "planet")
 
     # Add serialization rules
-    serialize_rules = ("-missions.scientist", "-planets.scientists")
+    serialize_rules = ("-missions.scientist",)
 
-    
-    @validates("name")
-    def validate_name(self, _, name):
-        if not name:
-            raise ValueError("Name has to be present")
-        return name
+    @validates("name", "field_of_study")
+    def validate_all(self, attr, value):
+        if not value:
+            raise AttributeError(f"Scientist must have a {attr}!")
+        else:
+            return value
 
-    @validates("field_of_study")
-    def validate_field_of_study(self, _, field_of_study):
-        if not field_of_study:
-            raise ValueError("field_of_study has to be present")
-        return field_of_study
-
-    # Add validation
 
 
 class Mission(db.Model, SerializerMixin):
@@ -77,27 +68,15 @@ class Mission(db.Model, SerializerMixin):
     # Add relationships
     scientist = db.relationship("Scientist", back_populates="missions")
     planet = db.relationship("Planet", back_populates="missions")
+
     # Add serialization rules
-    serialize_rules = ("-scientist.missions", "-planet.missions")
-    
+    serialize_rules = ("-planet.missions", "-scientist.missions")
     # Add validation
-    @validates("name")
-    def validate_name(self, _, name):
-        if not name:
-            raise ValueError("Name has to be present")
-        return name
 
-    @validates("scientist_id")
-    def validate_scientist_id(self, _, scientist_id):
-        if not scientist_id:
-            raise ValueError("scientist_id has to be present")
-        return scientist_id
-
-    @validates("planet_id")
-    def validate_planet_id(self, _, planet_id):
-        if not planet_id:
-            raise ValueError("planet_id has to be present")
-        return planet_id
-
-
+    @validates("name", "scientist_id", "planet_id")
+    def validate_all(self, attr, value):
+        if attr:
+            return value
+        else:
+            raise AttributeError(f"Mission must have {attr}!")
 # add any models you may need.
