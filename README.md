@@ -219,8 +219,7 @@ If the `Scientist` is created successfully, send back a response with the new
 {
   "id": 3,
   "name": "Evan Horizon",
-  "field_of_study": "astronavigation",
-  "missions": []
+  "field_of_study": "astronavigation"
 }
 ```
 
@@ -252,8 +251,7 @@ updated `Scientist` and a 202 `accepted` status code:
 {
   "id": 2,
   "name": "Bevan Horizon",
-  "field_of_study": "warp drive tech",
-  "missions": []
+  "field_of_study": "warp drive tech"
 }
 ```
 
