@@ -49,13 +49,14 @@ class Scientist(db.Model, SerializerMixin):
     # Add serialization rules
     serialize_rules = ("-missions.scientist",)
 
-    # Add validation
     @validates("name", "field_of_study")
     def validate_all(self, attr, value):
         if not value:
-            raise AttributeError(f"Scientist must have an a {attr}!")
+            raise AttributeError(f"Scientist must have a {attr}!")
         else:
             return value
+
+
 
 class Mission(db.Model, SerializerMixin):
     __tablename__ = "missions"
@@ -65,18 +66,17 @@ class Mission(db.Model, SerializerMixin):
     planet_id = db.Column(db.Integer, db.ForeignKey("planets.id"))
     scientist_id = db.Column(db.Integer, db.ForeignKey("scientists.id"))
     # Add relationships
+    scientist = db.relationship("Scientist", back_populates="missions")
     planet = db.relationship("Planet", back_populates="missions")
-    scientist= db.relationship("Scientist", back_populates="missions")
 
     # Add serialization rules
     serialize_rules = ("-planet.missions", "-scientist.missions")
-
     # Add validation
+
     @validates("name", "scientist_id", "planet_id")
     def validate_all(self, attr, value):
         if attr:
             return value
         else:
             raise AttributeError(f"Mission must have {attr}!")
-
 # add any models you may need.
